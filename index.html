@@ -1,0 +1,173 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #container{
+            width:100%;
+        }
+        #search-container{
+            margin:auto;
+            text-align:center;
+            padding:20px;
+        }
+        #city{
+            width:20%;
+            margin:auto;
+            padding:10px;
+            border-radius:20px;
+            text-align:center;
+            font-size: 18px;
+            font-weight: 500px;
+        }
+
+        #weather-container{
+            width:20%;
+            margin: auto;
+            margin-top: 25px;
+            background-color: rgb(177, 232, 255);
+            border: 2px solid rgb(223, 223, 223);
+            padding:20px;
+            text-align: center;
+
+        }
+
+        .weather-details{
+            width:100%;
+            padding: 20px;
+
+        }
+
+        .city-name{
+            font-size: 25px;
+            text-decoration: none;
+            font-family: sans-serif;
+            color: rgb(92, 92, 92);
+            margin:0;
+        }
+        .temp-container{
+            font-size: 20px;
+            display: flex;
+            flex-direction: row;
+            display: inline-block;
+            vertical-align: top;
+        }
+        .temp-container>img{
+            width:50px;
+            display: inline-block;
+            vertical-align: top;
+        }
+        .temprature{
+            font-size: 25px;
+            display: inline-block;
+            margin-top: 30px;
+        }
+        .unit{
+            font-size:20px;
+            display: inline-block;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="search-container">
+            <input id="city" placeholder="Enter City" oninput="debounce(main,1000)"/>
+        </div>
+
+        <div id="weather-container">
+
+        </div>
+    </div>
+</body>
+<script>
+
+    async function main(){
+        var data=await fetchData();
+        if(data===undefined){
+            return false;
+        }
+        displayData(data);
+    }
+
+    async function fetchData(){
+        try{
+            var city=document.getElementById('city').value;
+            var res=await fetch("https://api.openweathermap.org/data/2.5/weather?q="+city+"&appid=560fd568b872a08b1312fc62d584c9ca")
+            var data=await res.json();
+            return data;
+        }catch(error){
+            console.log(error);
+        }
+    }
+
+    var timerId;
+    function debounce(cbFunc,delay){
+        clearTimeout(timerId);
+        timerId=setTimeout(function(){
+            cbFunc();
+        },delay);
+    }
+
+    function displayData(data){
+        console.log(data);
+        var wheatherContainer=document.getElementById('weather-container')
+        wheatherContainer.innerHTML="";
+        var wheatherDetails=document.createElement('div');
+        wheatherDetails.className="wheather-details"
+
+        var cityName=document.createElement('h1');
+        cityName.className='city-name';
+        cityName.innerText=data.name;
+
+
+        var tempContainer=document.createElement('div');
+        tempContainer.className="temp-container";
+        tempContainer.innerText=Math.floor(data.main.temp-273.15);
+        
+
+        var temImg=document.createElement('img');
+        temImg.src="http://openweathermap.org/img/w/"+data.weather[0].icon+".png";
+        // console.log(data.weather[0].icon)
+
+        var temprature=document.createElement('div');
+        temprature.className='temprature';
+
+
+        var unit=document.createElement('div');
+        unit.innerHTML="<sup>o<sub>C<sub><sup>";
+        unit.className='unit';
+
+        tempContainer.append(temprature,unit)
+
+        var others=document.createElement('div');
+        others.className='others';
+
+        var humidity=document.createElement('p');
+        humidity.innerText="Humidity: "+Math.floor(data.main.humidity);    
+
+        var maxtemp=document.createElement('p');
+        maxtemp.innerText="Max Temp: "+Math.floor(data.main.temp_max-273.15);
+
+        var mintemp=document.createElement('p');
+        mintemp.innerText="Min Temp: "+Math.floor(data.main.temp_min-273.15);
+
+
+        others.append(humidity,maxtemp,mintemp);
+
+
+
+
+
+        wheatherDetails.append(cityName,temImg,tempContainer,others);
+
+        wheatherContainer.append(wheatherDetails);
+      
+        
+
+    }
+
+</script>
+</html>
